@@ -1,0 +1,74 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;   /* poziomo */
+  align-items: center;       /* pionowo */
+  font-family: system-ui, sans-serif;
+  background-color: #444;
+  color: white;
+}
+
+.container {
+  text-align: center; /* wyśrodkuje h1 i resztę */
+}
+
+.row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: center; /* canvas + panel też będą wyśrodkowane */
+}
+
+#canvas { 
+    border: 2px solid white; 
+    touch-action: none; 
+    background: black; 
+}
+
+.controls {
+    margin-top: 20px;
+}
+
+button {
+    height: 10mm;
+    width: 35mm;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+button:hover {
+  background-color: #ddd;
+}
+
+#probability-container {
+  display: flex;
+  justify-content: space-evenly; /* rozkłada słupki równomiernie */
+  align-items: flex-end;         /* wyrównanie słupków do dołu */
+  height: 200px;                 /* wysokość kontenera */
+}
+
+#probability-container div {
+  width: 40px;                  /* szerokość słupka */
+  background-color: green;      /* kolor słupka */
+  margin: 0 5px;                /* odstęp między słupkami */
+  position: relative;           /* umożliwia pozycjonowanie tekstu */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;    /* cyfry na dole */
+}
+
+#probability-container div span {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  padding-bottom: 5px;
+}
+
