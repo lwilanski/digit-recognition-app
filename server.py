@@ -34,8 +34,9 @@ class PredictRequest(BaseModel):
 
 def preprocess_from_b64(image_b64: str) -> np.ndarray:
     raw = base64.b64decode(image_b64.split(",")[-1])
-    img = Image.open(io.BytesIO(raw)).convert("L")
+    img = Image.open(io.BytesIO(raw))
     arr = np.array(img, dtype=np.float32)
+    np.save("test-array.npy", arr)
     arr_resized = resize_center_image(arr, 20)
     show_image(arr_resized)
     arr_normalized = arr_resized / 255.0
