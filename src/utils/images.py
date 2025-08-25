@@ -45,3 +45,11 @@ def interactive_mnist_demo(model, X_test_raw, X_test_proc, y_test_onehot):
         show_image(image)
 
         print("\n\n")
+
+def vec400_to_img20(vec):
+    arr = np.asarray(vec, dtype=np.float32)
+    if arr.size != 400:
+        raise ValueError(f"Expected 400 values, got {arr.size}")
+    img20 = arr.reshape(20, 20)                     # domyślnie order='C'
+    img255 = np.clip(np.rint(img20 * 255), 0, 255).astype(np.uint8)
+    return img255

@@ -72,3 +72,10 @@ button:hover {
   padding-bottom: 5px;
 }
 
+#labelInput {
+  padding: 6px 10px;
+  font-size: 30px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+

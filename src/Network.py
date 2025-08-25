@@ -117,12 +117,12 @@ class NeuralNetwork:
                     self.weights[k] -= learning_rate * (m_w_hat / (np.sqrt(v_w_hat) + eps))
                     self.biases[k] -= learning_rate * (m_b_hat / (np.sqrt(v_b_hat) + eps))
             
-            current_accuracy = calc_accuracy(self)
-            if current_accuracy > best_accuracy:
-                best_accuracy = current_accuracy
-                print(f"New best accuracy {best_accuracy}")
-                best_weights = [w.copy() for w in self.weights]
-                best_biases  = [b.copy() for b in self.biases]
+                current_accuracy = calc_accuracy(self)
+                if current_accuracy > best_accuracy:
+                    best_accuracy = current_accuracy
+                    print(f"New best accuracy {best_accuracy}")
+                    best_weights = [w.copy() for w in self.weights]
+                    best_biases  = [b.copy() for b in self.biases]
 
         self.weights = best_weights
         self.biases = best_biases

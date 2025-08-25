@@ -3,15 +3,15 @@ from src.Network import NeuralNetwork
 from pathlib import Path
 from functools import partial
 
-def train_and_save(layers, rng, X_train, y_train, epochs, lr, b1, b2, alpha, batch_size, X_test, y_test):
+def train_and_save(network, layers, rng, X_train, y_train, epochs, lr, b1, b2, alpha, batch_size, X_test, y_test):
     accuracy_func = partial(evaluate_model_accuracy, X_test = X_test, y_test = y_test)
-    net = NeuralNetwork(layers, rng)
+    net = network
     net.train(X_train, y_train, epochs, lr, b1, b2, alpha, batch_size, accuracy_func)
     train_accuracy = evaluate_model_accuracy(net, X_train, y_train)
     test_accuracy = evaluate_model_accuracy(net, X_test, y_test)
     lr_tag = f"{lr:.0e}" if lr < 1e-3 else f"{lr:.3f}"
     hidden = "_".join(map(str, layers[1:-1])) or "nohidden"
-    run_dir = Path(f"C:/Users/Lukasz/Documents/GitHub/digit-recognition-app/trained-models/input400_hl{hidden}_ep{epochs}_lr{lr_tag}_b1{b1:.2f}_b2{b2:.3f}_alpha{alpha:.2f}_bs{batch_size}_train{round(100 * train_accuracy, 2)}_test{round(100 * test_accuracy, 2)}")
+    run_dir = Path(f"C:/Users/Lukasz/Documents/GitHub/digit-recognition-app/trained-models/newer_data_input400_hl{hidden}_ep{epochs}_lr{lr_tag}_b1{b1:.2f}_b2{b2:.3f}_alpha{alpha:.2f}_bs{batch_size}_train{round(100 * train_accuracy, 2)}_test{round(100 * test_accuracy, 2)}")
     run_dir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(run_dir / "weights.npz", *net.weights)
     np.savez_compressed(run_dir / "biases.npz",  *net.biases)

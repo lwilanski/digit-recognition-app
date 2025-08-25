@@ -1,5 +1,6 @@
 const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+ctx.imageSmoothingEnabled = false;
 
 ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -61,6 +62,60 @@ function displayProbabilities(probabilities) {
     container.appendChild(bar);
   });
 }
+
+// const labelInput = document.getElementById("labelInput");
+// const classifyBtn = document.getElementById("classifyBtn");
+
+// function getValidLabel() {
+//   const v = labelInput.value.trim();
+//   if (!/^\d$/.test(v)) return null;
+//   const n = parseInt(v, 10);
+//   return (n >= 0 && n <= 9) ? n : null;
+// }
+
+// labelInput.addEventListener("keydown", (e) => {
+//   if (e.key === "Enter") classifyBtn.click();
+// });
+
+// function updateBtnState() {
+//   classifyBtn.disabled = (getValidLabel() === null);
+// }
+// labelInput.addEventListener("input", updateBtnState);
+// updateBtnState();
+
+// document.getElementById("classifyBtn").onclick = async () => {
+//   const label = getValidLabel();
+//   if (label === null) {
+//     alert("Podaj etykietę 0-9.");
+//     return;
+//   }
+
+//   const image_b64 = getOriginalPngBase64();
+
+//   try {
+//     const res = await fetch(`${HOST}/predict`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ image_b64, label })
+//     });
+
+//     if (!res.ok) {
+//       const msg = await res.text();
+//       throw new Error(`HTTP ${res.status}: ${msg}`);
+//     }
+
+//     const out = await res.json();
+//     if (out.error) throw new Error(out.error);
+
+//     document.getElementById("probability-container").textContent =
+//       `Prediction: ${out.prediction}`;
+//     displayProbabilities(out.proba);
+
+//   } catch (err) {
+//     console.error(err);
+//     alert("Błąd podczas klasyfikacji/zapisu: " + err.message);
+//   }
+// };
 
 document.getElementById("classifyBtn").onclick = async () => {
   const image_b64 = getOriginalPngBase64();

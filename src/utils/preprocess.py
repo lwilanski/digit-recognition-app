@@ -1,6 +1,5 @@
 import numpy as np
 from PIL import Image
-# from images import show_image
 
 def preprocess_images(images: np.ndarray) -> np.ndarray:
     resized_images = np.array([resize_center_image(image, 20) for image in images])
@@ -34,7 +33,6 @@ def resize_center_image(image, k):
             right_bound = i + 1
             break
     
-    print(top_bound, bottom_bound, left_bound, right_bound)
     content = image[top_bound + 1:bottom_bound, left_bound + 1:right_bound]
 
     height = bottom_bound - top_bound - 1
@@ -62,16 +60,3 @@ def resize_center_image(image, k):
 
     else:
         return new_image
-
-
-# arr = np.load('blank.npy')
-
-# # print(arr.shape)
-
-# print(np.max(arr))
-
-# # show_image(arr)
-
-# new_array = resize_center_image(arr, 20)
-
-# # show_image(new_array)
