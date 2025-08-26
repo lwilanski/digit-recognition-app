@@ -34,21 +34,21 @@ Getting Started
 2. Set up a virtual environment
    Python 3.13 is recommended, though most Python 3 versions should work.
 
-   python -m venv venv
+   `python -m venv venv`
 
    Activate the environment:
 
    - Linux / macOS:
-     source venv/bin/activate
+     `source venv/bin/activate`
 
    - Windows:
-     .\venv\Scripts\activate
+     `.\venv\Scripts\activate`
 
 3. Install dependencies
-   pip install -r requirements.txt
+   `pip install -r requirements.txt`
 
 4. Run the backend
-   uvicorn server:app --port 8000
+   `uvicorn server:app --port 8000`
 
 5. Run the frontend
    Simply open index.html in your preferred browser.
