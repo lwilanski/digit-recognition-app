@@ -24,12 +24,12 @@ Getting Started
 
 1. Clone the repository
    - SSH:
-     git clone git@github.com:lwilanski/digit-recognition-app.git
+     `git clone git@github.com:lwilanski/digit-recognition-app.git`
 
    - HTTPS:
-     git clone https://github.com/lwilanski/digit-recognition-app.git
+     `git clone https://github.com/lwilanski/digit-recognition-app.git`
 
-   cd digit-recognition-app
+   `cd digit-recognition-app`
 
 2. Set up a virtual environment
    Python 3.13 is recommended, though most Python 3 versions should work.
