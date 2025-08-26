@@ -63,6 +63,7 @@ Use backspace to clean the canvas.
 ------------------------------------------------------------
 Project Structure
 ------------------------------------------------------------
+```
 digit-recognition-app/
 ├── model-parameters/     # Trained MLP weights & biases
 ├── src/                  # MLP and utility functions
@@ -72,6 +73,7 @@ digit-recognition-app/
 ├── app.js                # Frontend logic
 ├── requirements.txt      # Python dependencies
 └── README.md             # Project documentation
+```
 
 ------------------------------------------------------------
 Demo
