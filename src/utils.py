@@ -1,18 +1,24 @@
 import numpy as np
+from pathlib import Path
 from PIL import Image
 
-def preprocess_images(images: np.ndarray) -> np.ndarray:
-    resized_images = np.array([resize_center_image(image, 20) for image in images])
-    images_normalized = resized_images.astype(np.float32) / np.float32(255.0)
-    images_flattened = images_normalized.reshape(images.shape[0], -1)
-    return images_flattened
+def load_weights_biases():
+    run_dir = Path(f"model-parameters")
 
-def one_hot_encode(labels: np.ndarray, num_classes: int = 10) -> np.ndarray:
-    one_hot = np.eye(num_classes)[labels]
-    return one_hot.astype(np.float32)
+    weights_data = np.load(run_dir/ "weights.npz")
+    weights = [weights_data[f"arr_{i}"] for i in range(len(weights_data.files))]
+
+    biases_data = np.load(run_dir/ "biases.npz")
+    biases = [biases_data[f"arr_{i}"] for i in range(len(biases_data.files))]
+
+    return weights, biases
 
 def resize_center_image(image, k):
     n = len(image)
+    top_bound = -1
+    bottom_bound = -1
+    left_bound = -1
+    right_bound = -1
     for i in range(n):
         if np.sum(image[i]) > 0:
             top_bound = i - 1

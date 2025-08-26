@@ -2,136 +2,163 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
 ctx.imageSmoothingEnabled = false;
 
-ctx.fillStyle = "black";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 ctx.lineWidth = 20;
 ctx.lineCap = "round";
 ctx.lineJoin = "round";
 ctx.strokeStyle = "white";
 
+function clearCanvas() {
+  ctx.save();
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.restore();
+}
+clearCanvas();
+
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  if (e.touches && e.touches[0]) {
+    return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+    }
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
 function getOriginalPngBase64() {
   return canvas.toDataURL("image/png");
 }
 
-let drawing = false;
-
-canvas.addEventListener("mousedown", (e) => {
-  drawing = true;
-  const r = canvas.getBoundingClientRect();
-  ctx.beginPath();
-  ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
-});
-
-canvas.addEventListener("mouseup", () => drawing = false);
-canvas.addEventListener("mouseout", () => drawing = false);
-
-canvas.addEventListener("mousemove", (e) => {
-  if (!drawing) return;
-  const r = canvas.getBoundingClientRect();
-  ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
-  ctx.stroke();
-});
-
-document.getElementById("clearBtn").onclick = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-};
-
 const HOST = "http://localhost:8000";
 
-function displayProbabilities(probabilities) {
-  const container = document.getElementById("probability-container");
-  container.innerHTML = ''; // Wyczyść poprzednie słupki
+// --------- Probability chart ----------
+const container = document.getElementById("probability-container");
+let bars = [];
 
-  probabilities.forEach((prob, idx) => {
+function createBarsOnce() {
+  if (bars.length) return;
+
+  for (let i = 0; i < 10; i++) {
     const bar = document.createElement("div");
+    bar.style.height = "0%";
 
-    // Ustawiamy wysokość słupka na podstawie prawdopodobieństwa
-    bar.style.height = `${prob * 100}%`;  // Wysokość odpowiadająca procentowi
-
-    // Dodajemy etykietę (numer klasy)
     const label = document.createElement("span");
-    label.innerText = `${idx}`;
+    label.textContent = String(i);
 
-    // Dodajemy etykietę do słupka
     bar.appendChild(label);
-
-    // Dodajemy słupek do kontenera
     container.appendChild(bar);
+    bars.push(bar);
+  }
+}
+
+function updateBars(probabilities) {
+  const probs = (probabilities || []).slice(0, 10);
+  while (probs.length < 10) probs.push(0);
+
+  probs.forEach((p, i) => {
+    const h = Math.max(0, Math.min(100, p * 100));
+    bars[i].style.height = `${h.toFixed(2)}%`;
   });
 }
 
-// const labelInput = document.getElementById("labelInput");
-// const classifyBtn = document.getElementById("classifyBtn");
+createBarsOnce();
+updateBars(Array(10).fill(0));
 
-// function getValidLabel() {
-//   const v = labelInput.value.trim();
-//   if (!/^\d$/.test(v)) return null;
-//   const n = parseInt(v, 10);
-//   return (n >= 0 && n <= 9) ? n : null;
-// }
+// --------- Pooling during drawing ----------
+let drawing = false;
+let pollTimer = null;
+let inFlight = false;
 
-// labelInput.addEventListener("keydown", (e) => {
-//   if (e.key === "Enter") classifyBtn.click();
-// });
+function startPolling() {
+  if (pollTimer !== null) return;
+  pollTimer = setInterval(async () => {
+    if (!drawing || inFlight) return;
+    inFlight = true;
+    try {
+      const image_b64 = getOriginalPngBase64();
+      const res = await fetch(`${HOST}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_b64 })
+      });
+      if (res.ok) {
+        const out = await res.json();
+        if (!out.error && Array.isArray(out.proba)) {
+          updateBars(out.proba);
+        }
+      } else {
+        console.error("Predict HTTP", res.status);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      inFlight = false;
+    }
+  }, 200);
+}
 
-// function updateBtnState() {
-//   classifyBtn.disabled = (getValidLabel() === null);
-// }
-// labelInput.addEventListener("input", updateBtnState);
-// updateBtnState();
-
-// document.getElementById("classifyBtn").onclick = async () => {
-//   const label = getValidLabel();
-//   if (label === null) {
-//     alert("Podaj etykietę 0-9.");
-//     return;
-//   }
-
-//   const image_b64 = getOriginalPngBase64();
-
-//   try {
-//     const res = await fetch(`${HOST}/predict`, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ image_b64, label })
-//     });
-
-//     if (!res.ok) {
-//       const msg = await res.text();
-//       throw new Error(`HTTP ${res.status}: ${msg}`);
-//     }
-
-//     const out = await res.json();
-//     if (out.error) throw new Error(out.error);
-
-//     document.getElementById("probability-container").textContent =
-//       `Prediction: ${out.prediction}`;
-//     displayProbabilities(out.proba);
-
-//   } catch (err) {
-//     console.error(err);
-//     alert("Błąd podczas klasyfikacji/zapisu: " + err.message);
-//   }
-// };
-
-document.getElementById("classifyBtn").onclick = async () => {
-  const image_b64 = getOriginalPngBase64();
-  const res = await fetch(`${HOST}/predict`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ image_b64 })
-  });
-  const out = await res.json();
-
-  if (out.error) {
-    console.error(out.error);
-    return;
+function stopPolling() {
+  if (pollTimer !== null) {
+    clearInterval(pollTimer);
+    pollTimer = null;
   }
+}
 
-  document.getElementById("probability-container").textContent = `Prediction: ${out.prediction}`;
+// --------- Mouse events ---------
+canvas.addEventListener("mousedown", (e) => {
+  drawing = true;
+  const { x, y } = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  startPolling();
+});
 
-  displayProbabilities(out.proba);
-};
+canvas.addEventListener("mousemove", (e) => {
+  if (!drawing) return;
+  const { x, y } = getPos(e);
+  ctx.lineTo(x, y);
+  ctx.stroke();
+});
+
+canvas.addEventListener("mouseup", () => {
+  drawing = false;
+  stopPolling();
+});
+
+canvas.addEventListener("mouseout", () => {
+  drawing = false;
+  stopPolling();
+});
+
+// --------- Touchscreen events ---------
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  drawing = true;
+  const { x, y } = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  startPolling();
+}, { passive: false });
+
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  if (!drawing) return;
+  const { x, y } = getPos(e);
+  ctx.lineTo(x, y);
+  ctx.stroke();
+}, { passive: false });
+
+canvas.addEventListener("touchend", () => {
+  drawing = false;
+  stopPolling();
+}, { passive: true });
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Backspace") {
+    const t = e.target;
+    const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+    if (!typing) {
+      e.preventDefault();
+      clearCanvas();
+      updateBars(Array(10).fill(0));
+    }
+  }
+});
